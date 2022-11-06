@@ -2,10 +2,13 @@ package com.kltn.controllers;
 
 
 import com.kltn.dto.request.LoginRequest;
+import com.kltn.dto.request.RegisterRequest;
 import com.kltn.dto.respone.ResponeToken;
+import com.kltn.enttities.User;
 import com.kltn.enttities.UserDetail;
 import com.kltn.filters.JwtAuthenticationFilter;
 import com.kltn.service.ClientService;
+import com.kltn.service.UserService;
 import com.kltn.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +37,13 @@ public class UsersController {
     @Autowired
     ClientService clientService;
 
-	@PostMapping("/api/token")
+    @Autowired
+    UserService userService;
+
+    @Autowired
+	public PasswordEncoder passwordEncoder;
+
+	@PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
         // Xác thực từ username và password.
@@ -65,6 +75,13 @@ public class UsersController {
         // lấy ra user hiện tại từ token
         Integer idUser = jwtUntil.getUserByIdfromJWT(jwt);
         return new ResponseEntity<>(String.valueOf(idUser), HttpStatus.OK);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest){
+	    registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        User user = userService.register(registerRequest);
+        return new ResponseEntity<>(String.valueOf(user.getId()), HttpStatus.OK);
     }
 
 }

@@ -39,7 +39,11 @@ public class User {
 		this.userRole = userRole;
 	}
 
-
+	public User(String userName, String password, String email) {
+		this.userName = userName;
+		this.password = password;
+		this.email = email;
+	}
 
 	public int getId() {
 		return id;
